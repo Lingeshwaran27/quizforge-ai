@@ -7,6 +7,9 @@ from dotenv import load_dotenv
 import io
 import PyPDF2
 import docx
+from pydantic import BaseModel
+from openai import OpenAI
+import httpx
 
 load_dotenv()
 
@@ -41,3 +44,45 @@ async def upload(file: UploadFile = File(...)):
         return JSONResponse(content={"error": "Unsupported file type"}, status_code=400)
 
     return {"filename": file.filename, "text_snippet": text[:300], "full_text": text}
+
+# Read API key
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
+class QuizRequest(BaseModel):
+    text: str
+    num_questions: int = 5
+    type: str = "mcq"
+    difficulty: str = "mixed"
+
+@app.post("/generate-quiz")
+async def generate_quiz(data: QuizRequest):
+    prompt = f"""
+    Generate {data.num_questions} {data.type.upper()} quiz questions from the content below.
+    Difficulty: {data.difficulty}.
+    Return output as a JSON list with 'question', 'options', 'answer'.
+
+    Content:
+    {data.text}
+    """
+
+    try:
+        async with httpx.AsyncClient() as client:
+            res = await client.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {GROQ_API_KEY}"
+                },
+                json={
+                    "model": "llama3-70b-8192",
+                    "messages": [
+                        {"role": "system", "content": "You are a helpful quiz generator."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "temperature": 0.7
+                }
+            )
+            res.raise_for_status()
+            result = res.json()["choices"][0]["message"]["content"]
+            return {"quiz": result}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
