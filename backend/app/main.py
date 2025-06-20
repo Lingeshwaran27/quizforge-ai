@@ -58,13 +58,18 @@ class QuizRequest(BaseModel):
 @app.post("/generate-quiz")
 async def generate_quiz(data: QuizRequest):
     prompt = f"""
-    Generate {data.num_questions} {data.type.upper()} quiz questions from the content below.
-    Difficulty: {data.difficulty}.
-    Return output as a JSON list with 'question', 'options', 'answer'.
+        Generate {data.num_questions} {data.type.upper()} quiz questions from the content below.
+        Difficulty: {data.difficulty}.
+        Return output as a JSON list of objects. Each object must have:
+        - "question": The question text
+        - "options": A list of multiple choice options
+        - "answer": The correct option
+        - "explanation": A short explanation justifying the correct answer
 
-    Content:
+    Content:    
     {data.text}
     """
+
 
     try:
         async with httpx.AsyncClient() as client:
