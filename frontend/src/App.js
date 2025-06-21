@@ -4,6 +4,7 @@ import FileUpload from './components/FileUpload';
 import QuizForm from './components/QuizForm';
 import InteractiveQuiz from './components/InteractiveQuiz';
 import FlashcardMode from './components/FlashcardMode';
+import DownloadPDFButton from './components/DownloadPDFButton';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -57,7 +58,36 @@ function App() {
         </div>
       )}
 
-      {mode === 'quiz' && quiz && <InteractiveQuiz quiz={quiz} />}
+      {mode === 'quiz' && quiz && (
+        <>
+          {/* Visible Content for PDF */}
+          <div id="quiz-pdf-content" className="p-4 bg-white text-dark">
+            <h3 className="mb-4">Generated Quiz</h3>
+            {quiz.map((item, index) => (
+              <div key={index} className="mb-3">
+                <strong>Q{index + 1}: {item.question}</strong>
+                <ul>
+                  {item.options.map((opt, i) => (
+                    <li key={i}>{opt}</li>
+                  ))}
+                </ul>
+                <p>
+                  <strong>Answer:</strong> {item.answer}<br />
+                  <strong>Explanation:</strong> {item.explanation}
+                </p>
+                <hr />
+              </div>
+            ))}
+          </div>
+
+          {/* Download Button */}
+          <DownloadPDFButton />
+
+          {/* Quiz Interaction */}
+          <InteractiveQuiz quiz={quiz} />
+        </>
+      )}
+
       {mode === 'flashcard' && flashcards.length > 0 && (
         <FlashcardMode flashcards={flashcards} />
       )}

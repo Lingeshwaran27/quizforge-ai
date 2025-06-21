@@ -1,0 +1,39 @@
+.progress-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end; /* aligns grid to the right */
+  margin-bottom: 1rem;
+}
+
+.grid-box {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;      /* circular buttons */
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+.grid-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
+}
+
+.grid-box.answered {
+  background-color: #28a745;
+  color: white;
+}
+.grid-box.unanswered {
+  background-color: #dc3545;
+  color: white;
+}
+.grid-box.bookmarked {
+  background-color: #ffc107;
+  color: white;
+}
+.grid-box.active {
+  box-shadow: 0 0 0 3px #0056b3;  /* blue outline for active */
+}
