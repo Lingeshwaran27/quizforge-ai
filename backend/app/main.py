@@ -92,3 +92,38 @@ async def generate_quiz(data: QuizRequest):
             return {"quiz": result}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
+
+
+@app.post("/generate-flashcards")
+async def generate_flashcards(data: QuizRequest):
+    prompt = f"""
+    From the following content, extract key concepts and generate flashcards.
+    Format the output as a JSON list of objects with:
+    - "term": the keyword or question
+    - "definition": the answer or explanation
+
+    Content:
+    {data.text}
+    """
+
+    try:
+        async with httpx.AsyncClient() as client:
+            res = await client.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {GROQ_API_KEY}"
+                },
+                json={
+                    "model": "llama3-70b-8192",
+                    "messages": [
+                        {"role": "system", "content": "You are a helpful flashcard generator."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "temperature": 0.6
+                }
+            )
+            res.raise_for_status()
+            result = res.json()["choices"][0]["message"]["content"]
+            return {"flashcards": result}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})

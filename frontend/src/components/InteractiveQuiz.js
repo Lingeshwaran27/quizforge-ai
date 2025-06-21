@@ -21,6 +21,23 @@ function InteractiveQuiz({ quiz }) {
     return acc;
   }, 0);
 
+  const getOptionStyle = (q, index, opt) => {
+    if (!submitted) return {};
+
+    const userAnswer = answers[index];
+    const correctAnswer = q.answer;
+
+    if (opt === correctAnswer) {
+      return { backgroundColor: '#d4edda', color: '#155724', padding: '5px', borderRadius: '5px' }; // green
+    }
+
+    if (opt === userAnswer && opt !== correctAnswer) {
+      return { backgroundColor: '#f8d7da', color: '#721c24', padding: '5px', borderRadius: '5px' }; // red
+    }
+
+    return {};
+  };
+
   return (
     <div>
       <h3>Take Quiz</h3>
@@ -30,7 +47,7 @@ function InteractiveQuiz({ quiz }) {
           <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
             {q.options.map((opt, idx) => (
               <li key={idx}>
-                <label>
+                <label style={getOptionStyle(q, index, opt)}>
                   <input
                     type="radio"
                     name={`q-${index}`}
